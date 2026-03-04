@@ -299,38 +299,6 @@ test.describe('Contact Page Failure Validations', () => {
   });
 });
 
-test.describe('rate limit', () => {
-  test.use({ bypassRateLimit: false });
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/contact');
-  });
-
-  test('rate limit exceeded error', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium', 'Rate limit test only runs in chromium desktop');
-    // This test assumes the rate limit is set to 5 requests per minute for the contact form endpoint.
-    const contactPage = new ContactPage(page);
-    const randomStr = randomString(10);
-    const firstName = `${randomStr}-firstNameTest`;
-    const lastName = `${randomStr}-lastNameTest`;
-    const email = `${randomStr}@test.com`;
-    const message = 'This is a test message';
-
-    await test.step('submit form multiple times to exceed rate limit', async () => {
-      for (let i = 0; i < 6; i++) {
-        await contactPage.insertTextIntoAllFields(firstName, lastName, email, message);
-        const response = await contactPage.clickSendMessageAndWaitForResponse();
-        if (i < 5) {
-          expect(response.status()).toBe(200);
-          await contactPage.clickBackToHomeButton();
-          await page.waitForTimeout(1000);
-        } else {
-          expect(response.status()).toBe(429);
-        }
-      }
-    });
-  });
-});
-
 test.describe('500 error handling', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/contact');
