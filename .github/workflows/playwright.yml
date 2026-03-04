@@ -19,7 +19,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: playwright/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            playwright/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
 
       - name: Install dependencies
         working-directory: playwright
