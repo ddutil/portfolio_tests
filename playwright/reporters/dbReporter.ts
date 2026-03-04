@@ -7,6 +7,7 @@ import type {
   FullResult,
 } from '@playwright/test/reporter';
 import { config } from 'dotenv';
+import { runQuery } from '../../utils/dbUtils';
 
 config();
 
@@ -46,9 +47,6 @@ class DbReporter implements Reporter {
     const environment = process.env.CI ? 'ci' : 'local';
 
     try {
-      // Lazy-load to avoid module resolution issues at config load time
-      const { runQuery } = await import('../../utils/dbUtils');
-
       await runQuery(
         `INSERT INTO public.test_runs
           ("runDate", "suiteName", total, passed, failed, skipped, "durationMs", environment, tests)
