@@ -7,7 +7,7 @@ export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  retries: 0,
   workers: process.env.CI ? 2 : undefined,
   reporter: [['html'], ['list'], ...(process.env.CI ? [['./reporters/dbReporter.ts']] as const : [])],
 
