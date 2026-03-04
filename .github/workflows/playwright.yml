@@ -2,8 +2,10 @@ name: Playwright Tests
 
 on:
   schedule:
-    - cron: '0 10 * * *' 
+    - cron: '0 10 * * *'
   workflow_dispatch: # Allow manual runs from the GitHub Actions UI
+  repository_dispatch:
+    types: [vercel-deployed] # Triggered by the website repo after Vercel deploys
 
 jobs:
   test:
