@@ -96,6 +96,11 @@ export class ContactPage extends BasePage {
   }
 
   async getAllErrorMessagesText() {
+    try {
+      await this.allVisibleErrorMessages.first().waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      // No errors appeared — return empty array
+    }
     const errors = await this.allVisibleErrorMessages.all();
     return Promise.all(errors.map(e => e.textContent()));
   }
