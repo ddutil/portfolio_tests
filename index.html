@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Test Reports</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; color: #111; }
+    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 0.6rem 1rem; border-bottom: 1px solid #e5e7eb; }
+    th { background: #f9fafb; font-weight: 600; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Playwright Test Reports</h1>
+  <table>
+    <thead><tr><th>Date</th><th>Run</th><th>Report</th></tr></thead>
+    <tbody id="runs"></tbody>
+  </table>
+  <script>
+    fetch('runs.json')
+      .then(r => r.json())
+      .then(runs => {
+        document.getElementById('runs').innerHTML = runs.map(r => `
+          <tr>
+            <td>${new Date(r.date).toLocaleString()}</td>
+            <td>#${r.run}</td>
+            <td><a href="reports/${r.dir}/index.html">View Report</a></td>
+          </tr>
+        `).join('');
+      });
+  </script>
+</body>
+</html>
