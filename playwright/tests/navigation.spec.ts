@@ -58,7 +58,7 @@ test.describe('Navigation Validation', () => {
     await expect(errorPage.pageTitle).toHaveText(constants.homePageTitle);
   });
 
-  test.only('navbar remains visible after scrolling to bottom of page', async ({ page }) => {
+  test('navbar remains visible after scrolling to bottom of page', async ({ page }) => {
     for (const route of constants.routes) {
       await test.step(`navigate to ${route} and verify navbar is sticky`, async () => {
         await page.goto(route);
