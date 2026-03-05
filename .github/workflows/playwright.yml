@@ -11,6 +11,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write  # required for peaceiris/actions-gh-pages to push to gh-pages branch
 
     steps:
       - name: Checkout repository
@@ -49,10 +51,103 @@ jobs:
           DB_SSL: ${{ secrets.DB_SSL }}
         run: npm test
 
-      - name: Upload Playwright report
+      - name: Upload Playwright report artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: playwright/playwright-report/
           retention-days: 30
+
+      - name: Set report folder name
+        id: report-dir
+        if: always()
+        run: echo "name=$(date +'%Y-%m-%d')-run-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Deploy report to versioned GitHub Pages subfolder
+        uses: peaceiris/actions-gh-pages@v4
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: playwright/playwright-report/
+          destination_dir: reports/${{ steps.report-dir.outputs.name }}
+          keep_files: true
+
+      - name: Update runs index on GitHub Pages
+        if: always()
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git clone --branch gh-pages --single-branch \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            gh-pages-clone
+
+          cd gh-pages-clone
+
+          # Append new run entry to runs.json
+          REPORT_DIR="${{ steps.report-dir.outputs.name }}"
+          if [ -f runs.json ]; then RUNS=$(cat runs.json); else RUNS="[]"; fi
+          NEW_ENTRY=$(jq -n \
+            --arg dir "$REPORT_DIR" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson run "${{ github.run_number }}" \
+            '{dir: $dir, date: $date, run: $run}')
+          echo "$RUNS" | jq --argjson e "$NEW_ENTRY" '[$e] + .' > runs.json
+
+          # Write index.html (idempotent)
+          cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Playwright Test Reports</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; color: #111; }
+              h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+              table { width: 100%; border-collapse: collapse; }
+              th, td { text-align: left; padding: 0.6rem 1rem; border-bottom: 1px solid #e5e7eb; }
+              th { background: #f9fafb; font-weight: 600; }
+              a { color: #2563eb; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>Playwright Test Reports</h1>
+            <table>
+              <thead><tr><th>Date</th><th>Run</th><th>Report</th></tr></thead>
+              <tbody id="runs"></tbody>
+            </table>
+            <script>
+              fetch('runs.json')
+                .then(r => r.json())
+                .then(runs => {
+                  document.getElementById('runs').innerHTML = runs.map(r => `
+                    <tr>
+                      <td>${new Date(r.date).toLocaleString()}</td>
+                      <td>#${r.run}</td>
+                      <td><a href="reports/${r.dir}/index.html">View Report</a></td>
+                    </tr>
+                  `).join('');
+                });
+            </script>
+          </body>
+          </html>
+          EOF
+
+          git add -A
+          git diff --cached --quiet || git commit -m "Add report: $REPORT_DIR"
+
+          # Delete report folders older than 7 days and update runs.json
+          CUTOFF=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          OLD_DIRS=$(jq -r --arg cutoff "$CUTOFF" '.[] | select(.date < $cutoff) | .dir' runs.json)
+          for dir in $OLD_DIRS; do
+            rm -rf "reports/$dir"
+          done
+          jq --arg cutoff "$CUTOFF" '[.[] | select(.date >= $cutoff)]' runs.json > runs.tmp && mv runs.tmp runs.json
+
+          git add -A
+          git diff --cached --quiet || git commit -m "Remove reports older than 7 days"
+
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
