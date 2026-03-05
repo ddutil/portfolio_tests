@@ -1,5 +1,5 @@
 {
-  "routes": ["/", "/contact", "/experience"],
+  "routes": ["/", "/contact", "/experience", "/test-results"],
   "homePageTitle": "Dan Dutil",
   "homePagePosition": "QA & Automation Engineer",
   "homePageLinkedInLink": "https://www.linkedin.com/in/dan-dutil-b15161a5/",

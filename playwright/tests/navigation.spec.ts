@@ -16,7 +16,7 @@ test.describe('Navigation Validation', () => {
         if (route === '/') {
           await expect(pageTitle).toHaveText(constants.homePageTitle);
         } else {
-          const expectedTitle = route.replace(/\//g, ''); 
+          const expectedTitle = route.replace(/\//g, '').replace(/-/g, ' '); 
           await expect(pageTitle).toContainText(expectedTitle, { 
             ignoreCase: true, 
           });
@@ -56,5 +56,18 @@ test.describe('Navigation Validation', () => {
 
     await errorPage.clickGoHomeButton();
     await expect(errorPage.pageTitle).toHaveText(constants.homePageTitle);
+  });
+
+  test.only('navbar remains visible after scrolling to bottom of page', async ({ page }) => {
+    for (const route of constants.routes) {
+      await test.step(`navigate to ${route} and verify navbar is sticky`, async () => {
+        await page.goto(route);
+        const basePage = new BasePage(page);
+
+        await expect(basePage.navBar).toBeVisible();
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+        await expect(basePage.navBar).toBeVisible();
+      });
+    }
   });
 });
