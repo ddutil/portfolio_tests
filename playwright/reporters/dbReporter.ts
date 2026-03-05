@@ -45,13 +45,18 @@ class DbReporter implements Reporter {
   async onEnd(_result: FullResult) {
     const durationMs = Date.now() - this.startTime;
     const environment = process.env.CI ? 'ci' : 'local';
+    const runNumber = process.env.GITHUB_RUN_NUMBER;
+    const runDate = new Date().toISOString().slice(0, 10);
+    const reportUrl = process.env.CI && runNumber
+      ? `https://ddutil.github.io/portfolio_tests/reports/${runDate}-run-${runNumber}/index.html`
+      : null;
 
     try {
       await runQuery(
         `INSERT INTO public.test_runs
-          ("runDate", "suiteName", total, passed, failed, skipped, "durationMs", environment, tests)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [new Date(), 'Playwright', this.total, this.passed, this.failed, this.skipped, durationMs, environment, JSON.stringify(this.tests)]
+          ("runDate", "suiteName", total, passed, failed, skipped, "durationMs", environment, tests, "reportUrl")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [new Date(), 'Playwright', this.total, this.passed, this.failed, this.skipped, durationMs, environment, JSON.stringify(this.tests), reportUrl]
       );
       console.log(`\nTest run logged to database (${environment}): ${this.passed}/${this.total} passed`);
     } catch (err) {
