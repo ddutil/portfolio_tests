@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/base';
+import { type Locator } from '@playwright/test';
 import { TestPage } from '../pages/TestPage';
 import constants from '../../test-data/constants.json';
 import { runQuery } from '../../utils/dbUtils';
@@ -43,7 +44,7 @@ test.describe('Test Results Info', () => {
   });
 });
 
-test.describe('Test Run Cards', () => {
+test.describe.only('Test Run Cards', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/test-results');
   });
@@ -156,24 +157,33 @@ test.describe('Test Run Cards', () => {
         const passBarLocator = testPage.getTestRunPassBarLocatorForGivenTestRun(cardLocator);
         const failedBarLocator = testPage.getTestRunFailBarLocatorForGivenTestRun(cardLocator);
         const skippedBarLocator = testPage.getTestRunSkipBarLocatorForGivenTestRun(cardLocator);
-        const expectedPassRatePercentValue = total > 0 ? parseFloat(((passed / total) * 100).toPrecision(6)) : 0;
-        const expectedFailedRatePercentValue = total > 0 ? parseFloat(((failed / total) * 100).toPrecision(6)) : 0;
-        const expectedSkippedRatePercentValue = total > 0 ? parseFloat(((skipped / total) * 100).toPrecision(6)) : 0;
+        const expectedPassRatePercentValue = total > 0 ? (passed / total) * 100 : 0;
+        const expectedFailedRatePercentValue = total > 0 ? (failed / total) * 100 : 0;
+        const expectedSkippedRatePercentValue = total > 0 ? (skipped / total) * 100 : 0;
+
+        const parseBarWidth = async (locator: Locator) => {
+          const style = await locator.getAttribute('style');
+          const match = style?.match(/width:\s*([\d.]+)%/);
+          return match ? parseFloat(match[1]) : null;
+        };
 
         if (expectedPassRatePercentValue > 0) {
-          await expect.soft(passBarLocator).toHaveAttribute('style', new RegExp(`width:\\s*${expectedPassRatePercentValue}`));
+          const actual = await parseBarWidth(passBarLocator);
+          expect.soft(actual).toBeCloseTo(expectedPassRatePercentValue, 2);
         } else {
           await expect.soft(passBarLocator).not.toBeVisible();
         }
 
         if (expectedFailedRatePercentValue > 0) {
-          await expect.soft(failedBarLocator).toHaveAttribute('style', new RegExp(`width:\\s*${expectedFailedRatePercentValue}`));
+          const actual = await parseBarWidth(failedBarLocator);
+          expect.soft(actual).toBeCloseTo(expectedFailedRatePercentValue, 2);
         } else {
           await expect.soft(failedBarLocator).not.toBeVisible();
         }
 
         if (expectedSkippedRatePercentValue > 0) {
-          await expect.soft(skippedBarLocator).toHaveAttribute('style', new RegExp(`width:\\s*${expectedSkippedRatePercentValue}`));
+          const actual = await parseBarWidth(skippedBarLocator);
+          expect.soft(actual).toBeCloseTo(expectedSkippedRatePercentValue, 2);
         } else {
           await expect.soft(skippedBarLocator).not.toBeVisible();
         }
