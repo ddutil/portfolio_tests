@@ -58,8 +58,6 @@ test.describe('Test Run Cards', () => {
     const now = new Date();
     const sevenDaysAgoUtc = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const nowUtc = now.toISOString();
-    console.log('Query:', testRunsQuery);
-    console.log('Params:', [sevenDaysAgoUtc, nowUtc]);
     const testRuns = await runQuery(testRunsQuery, [sevenDaysAgoUtc, nowUtc]);
 
     for (const testRun of testRuns) {
