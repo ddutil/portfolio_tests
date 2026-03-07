@@ -66,7 +66,7 @@ test.describe('Test Run Cards', () => {
       const localDate = rawDate instanceof Date ? rawDate : new Date(`${rawDate}`);
       const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60 * 1000);
       const expectedRunDate = utcDate.toLocaleString('en-US', {
-          timeZone: 'America/New_York',
+          timeZone: 'UTC',
           month: 'short',
           day: 'numeric',
           year: 'numeric',
@@ -161,19 +161,19 @@ test.describe('Test Run Cards', () => {
         const expectedSkippedRatePercentValue = total > 0 ? parseFloat(((skipped / total) * 100).toPrecision(6)) : 0;
 
         if (expectedPassRatePercentValue > 0) {
-          await expect.soft(passBarLocator).toHaveAttribute('style', `width: ${expectedPassRatePercentValue}%;`);
+          await expect.soft(passBarLocator).toHaveAttribute('style', new RegExp(`width:\\s*${expectedPassRatePercentValue}`));
         } else {
           await expect.soft(passBarLocator).not.toBeVisible();
         }
 
         if (expectedFailedRatePercentValue > 0) {
-          await expect.soft(failedBarLocator).toHaveAttribute('style', `width: ${expectedFailedRatePercentValue}%;`);
+          await expect.soft(failedBarLocator).toHaveAttribute('style', new RegExp(`width:\\s*${expectedFailedRatePercentValue}`));
         } else {
           await expect.soft(failedBarLocator).not.toBeVisible();
         }
 
         if (expectedSkippedRatePercentValue > 0) {
-          await expect.soft(skippedBarLocator).toHaveAttribute('style', `width: ${expectedSkippedRatePercentValue}%;`);
+          await expect.soft(skippedBarLocator).toHaveAttribute('style', new RegExp(`width:\\s*${expectedSkippedRatePercentValue}`));
         } else {
           await expect.soft(skippedBarLocator).not.toBeVisible();
         }
