@@ -44,7 +44,7 @@ test.describe('Test Results Info', () => {
   });
 });
 
-test.describe.only('Test Run Cards', () => {
+test.describe('Test Run Cards', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/test-results');
   });
