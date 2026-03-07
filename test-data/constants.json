@@ -28,5 +28,9 @@
   "contactPageInvalidEmailError": "Invalid email address",
   "contactPageEmailSendError": "Failed to send email",
   "contactPageGenericError": "Internal server error",
+  "testResultsRepoLink": "https://github.com/ddutil/portfolio_tests",
+  "testResultsTestSuites": ["Playwright"],
+  "testResultsEnvs": ["CI"],
+  "testResultsBrowsers": ["chromium", "mobile-chrome"],
   "errorPageTitle": "404"
 }
