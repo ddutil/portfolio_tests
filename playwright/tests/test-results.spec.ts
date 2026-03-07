@@ -49,14 +49,18 @@ test.describe('Test Run Cards', () => {
     await page.goto('/test-results');
   });
   
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const testRunsQuery = `SELECT * FROM test_runs WHERE "runDate" BETWEEN $1 AND $2 ORDER BY "runDate" DESC`
 
   test('verify test run cards display correct information for recent test runs', async ({ page }) => {
     test.setTimeout(120_000);
     const testPage = new TestPage(page);
 
-    const testRuns = await runQuery(testRunsQuery, [sevenDaysAgo, new Date()]);
+    const now = new Date();
+    const sevenDaysAgoUtc = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const nowUtc = now.toISOString();
+    console.log('Query:', testRunsQuery);
+    console.log('Params:', [sevenDaysAgoUtc, nowUtc]);
+    const testRuns = await runQuery(testRunsQuery, [sevenDaysAgoUtc, nowUtc]);
 
     for (const testRun of testRuns) {
       const cardLocator = testPage.getTestRunCardLocatorForGivenTestRun(testRun.id as number);
@@ -211,8 +215,8 @@ test.describe('Test Run Cards', () => {
 
           const specificTestCasesForBrowserLocator = testPage.getLocatorForSpecificTestCasesForGivenTestRunAndBrowser(cardLocator, browser);
           const browserTests = (testRun.tests as any[]).filter(t => t.name.startsWith(`${browser} > `));
-          const statusIcon: Record<string, string> = { passed: '✓', failed: '✗', skipped: '—' };
-          const statusBgClass: Record<string, string> = { passed: 'bg-green', failed: 'bg-red', skipped: 'bg-yellow' };
+          const statusIcon: Record<string, string> = { passed: '✓', failed: '✗', skipped: '—', timedOut: '⏱' };
+          const statusBgClass: Record<string, string> = { passed: 'bg-green', failed: 'bg-red', skipped: 'bg-yellow', timedOut: 'bg-red' };
 
           for (let i = 0; i < browserTests.length; i++) {
             const t = browserTests[i];
