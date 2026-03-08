@@ -5,12 +5,12 @@ import constants from '../../test-data/constants.json';
 import { runQuery } from '../../utils/dbUtils';
 import { fmtDuration } from '../../utils/formatUtils';
 
-test.describe('Test Results Info', () => {
+test.describe('Test Results - Text Content', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/test-results');
   });
 
-  test('verify title and info about test suites displayed', async ({ page }) => {
+  test('Verify title and info sections', async ({ page }) => {
     const testPage = new TestPage(page);
 
     await test.step('verify title and description are visible', async () => {
@@ -28,7 +28,7 @@ test.describe('Test Results Info', () => {
     });
   });
 
-  test('verify repo link is correct and navigates to expected URL', async ({ page, context }) => {
+  test('Repo link verification', async ({ page, context }) => {
     const testPage = new TestPage(page);
     await expect(testPage.repoLink).toBeVisible();
     await expect(testPage.repoLink).toHaveAttribute('href', constants.testResultsRepoLink);
@@ -44,14 +44,14 @@ test.describe('Test Results Info', () => {
   });
 });
 
-test.describe('Test Run Cards', () => {
+test.describe('Test Results - Test Run Cards', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/test-results');
   });
   
   const testRunsQuery = `SELECT * FROM test_runs WHERE "runDate" BETWEEN $1 AND $2 ORDER BY "runDate" DESC`
 
-  test('verify test run cards display correct information for recent test runs', async ({ page }) => {
+  test('Card data display and verification', async ({ page }) => {
     test.setTimeout(120_000);
     const testPage = new TestPage(page);
 

@@ -3,18 +3,18 @@ import HomePage from '../pages/HomePage';
 import constants from '../../test-data/constants.json';
 import fs from 'fs';
 
-test.describe('Homepage Text Content', () => {
+test.describe('Homepage - Text Content', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('homepage title and position are correct', async ({ page }) => {
+  test('Homepage title and position text check', async ({ page }) => {
     const homePage = new HomePage(page);
     await expect.soft(homePage.pageTitle).toHaveText(constants.homePageTitle);
     await expect.soft(homePage.positionTitle).toHaveText(constants.homePagePosition);
   });
 
-  test('section titles are correct, sections are populated', async ({ page }) => {
+  test('Homepage section titles and content check', async ({ page }) => {
     const homePage = new HomePage(page);
 
     await test.step('verify section titles match expected values', async () => {
@@ -44,12 +44,12 @@ test.describe('Homepage Text Content', () => {
   });
 });
 
-test.describe('Homepage Buttons', () => {
+test.describe('Homepage - Buttons', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('resume button downloads non-empty PDF', async ({ page }) => {
+  test('Resume button downloads non-empty PDF', async ({ page }) => {
     const homePage = new HomePage(page);
 
     // Listen for download event before clicking the button
@@ -72,11 +72,10 @@ test.describe('Homepage Buttons', () => {
     await expect(homePage.linkedInButton).toHaveAttribute('href', constants.homePageLinkedInLink);
   });
 
-  test('email button navigates to contact page', async ({ page }) => {
+  test('Email button navigates to contact page', async ({ page }) => {
     const homePage = new HomePage(page);
     await homePage.clickEmailButton();
     await page.waitForLoadState();
-    // check the URL contains expected path (update as needed)
     expect(page).toHaveURL(/.*\/contact/);
   });
 

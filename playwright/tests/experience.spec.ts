@@ -7,8 +7,9 @@ test.describe('Experience Page', () => {
     await page.goto('/experience');
   });
 
-  test('tab text matches expected values', async ({ page }) => {
+  test('Number of tabs and tab text check', async ({ page }) => {
     const experiencePage = new ExperiencePage(page);
+    expect.soft(await experiencePage.allTabs.count()).toBe(constants.experiencePageTabs.length);
     
     for (const tab of await experiencePage.allTabs.all()) {
       expect.soft(constants.experiencePageTabs).toContain(await tab.textContent());
@@ -20,7 +21,7 @@ test.describe('Experience Page', () => {
     await expect(experiencePage.workHistoryTab).toHaveAttribute('data-active', 'true');
   });
 
-  test('only one tab is active at a time', async ({ page }) => {
+  test('Only one tab is active at a time', async ({ page }) => {
     const experiencePage = new ExperiencePage(page);
 
     // verify only one tab is active before changing tabs
@@ -39,7 +40,7 @@ test.describe('Experience Page', () => {
     }
   });
 
-  test('content updates when selecting different tabs', async ({ page }) => {
+  test('Content updates when selecting different tabs', async ({ page }) => {
     const experiencePage = new ExperiencePage(page);
 
     await test.step('verify work history content is visible when work history tab is selected', async () => {

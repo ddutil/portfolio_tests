@@ -4,14 +4,13 @@ import { randomString } from '../../utils/stringUtils';
 
 // This file is excluded from mobile projects in playwright.config.ts
 // so it only runs on chromium desktop.
-test.describe('rate limit', () => {
+test.describe('Rate Limit - Contact Page Emails', () => {
   test.use({ bypassRateLimit: false });
   test.beforeEach(async ({ page }) => {
     await page.goto('/contact');
   });
 
-  test('rate limit exceeded error', async ({ page }) => {
-    // This test assumes the rate limit is set to 5 requests per minute for the contact form endpoint.
+  test('Ensure rate limit is enforced for contact form submissions', async ({ page }) => {
     const contactPage = new ContactPage(page);
     const randomStr = randomString(10);
     const firstName = `${randomStr}-firstNameTest`;

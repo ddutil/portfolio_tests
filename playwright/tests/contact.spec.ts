@@ -6,12 +6,12 @@ import { runQuery } from '../../utils/dbUtils';
 
 const query = 'SELECT * FROM contact_submissions WHERE email = $1';
 
-test.describe('Contact Page Layout, Happy Path', () => {
+test.describe('Contact Page - Layout, Happy Path', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/contact');
   });
 
-  test('form field labels are correct, text fields and buttons are visible', async ({ page }) => {
+  test('Form field labels, text fields, and buttons exist', async ({ page }) => {
     const contactPage = new ContactPage(page);
 
     await test.step('verify form field labels match expected values', async () => {
@@ -36,7 +36,7 @@ test.describe('Contact Page Layout, Happy Path', () => {
     });
   });
 
-  test('minimal happy path form submission, no company', async ({ page }) => {
+  test('Successful form submission with only required fields populated', async ({ page }) => {
     const contactPage = new ContactPage(page);
     const randomStr = randomString(10);
     const firstName = `${randomStr}-firstNameTest`;
@@ -86,7 +86,7 @@ test.describe('Contact Page Layout, Happy Path', () => {
 
   });
 
-  test('maximum happy path form submission with company', async ({ page }) => {
+  test('Successful form submission with all fields populated', async ({ page }) => {
     const contactPage = new ContactPage(page);
     const randomStr = randomString(10);
     const firstName = `${randomStr}-firstNameTest`;
@@ -126,12 +126,12 @@ test.describe('Contact Page Layout, Happy Path', () => {
   });
 });
 
-test.describe('Contact Page Upper and Lower Boundary Validations', () => {
+test.describe('Contact Page - Successful Submissions, Upper and Lower Boundary Validations', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/contact');
   });
 
-  test('upper bounds for all fields' , async ({ page }) => {
+  test('Upper bound limits for all text fields' , async ({ page }) => {
     const contactPage = new ContactPage(page);
     const firstName = randomString(50);
     const lastName = randomString(50);
@@ -167,7 +167,7 @@ test.describe('Contact Page Upper and Lower Boundary Validations', () => {
 
   });
 
-  test('lower bounds for all fields' , async ({ page }) => {
+  test('Lower bound limits for all text fields' , async ({ page }) => {
     const contactPage = new ContactPage(page);
     const firstName = randomString(1);
     const lastName = randomString(1);
@@ -203,12 +203,12 @@ test.describe('Contact Page Upper and Lower Boundary Validations', () => {
   });
 });
 
-test.describe('Contact Page Failure Validations', () => {
+test.describe('Contact Page - Failed Submissions', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/contact');
   });
 
-  test('submit form with all fields empty and verify error messages', async ({ page }) => {
+  test('All fields empty', async ({ page }) => {
     const contactPage = new ContactPage(page);
 
     await test.step('submit form with all fields empty', async () => {
@@ -225,7 +225,7 @@ test.describe('Contact Page Failure Validations', () => {
     });
   });
 
-  test('submit with message field under minimum characters and verify error message', async ({ page }) => {
+  test('Message field under minimum characters', async ({ page }) => {
     const contactPage = new ContactPage(page);
     const email = `${randomString(10)}@test.com`;
     const message = randomString(9);
@@ -248,7 +248,7 @@ test.describe('Contact Page Failure Validations', () => {
     });
   });
   
-  test('above maximum characters for all fields and verify error messages', async ({ page }) => {
+  test('Above maximum characters for all fields', async ({ page }) => {
     const contactPage = new ContactPage(page);
     const firstName = randomString(51);
     const lastName = randomString(51);
@@ -278,7 +278,7 @@ test.describe('Contact Page Failure Validations', () => {
     });
   });
 
-  test('invalid email format and verify error message', async ({ page }) => {
+  test('Invalid email format', async ({ page }) => {
     const contactPage = new ContactPage(page);
     const invalidEmails = ['invalidEmailFormat', 'test@domain', 'test@.com', 'test.domain.com',
       'test@@domain.com', '.test@domain.com', 'test..email@domain.com', 'test@domain..com',
@@ -299,12 +299,12 @@ test.describe('Contact Page Failure Validations', () => {
   });
 });
 
-test.describe('500 error handling', () => {
+test.describe('Contact Page - 500 Error Handling', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/contact');
   });
 
-  test('displays failed to send email error message on Resend failure', async ({ page }) => {
+  test('Failed to send email error', async ({ page }) => {
     const contactPage = new ContactPage(page);
 
     await page.route('**/api/contact', route => route.fulfill({
@@ -326,7 +326,7 @@ test.describe('500 error handling', () => {
     });
   });
 
-  test('displays generic error message on unhandled server exception', async ({ page }) => {
+  test('Generic error on unhandled server exception', async ({ page }) => {
     const contactPage = new ContactPage(page);
 
     await page.route('**/api/contact', route => route.fulfill({

@@ -1,13 +1,13 @@
 import { test, expect } from '../fixtures/base';
 
 test.describe('Site Load Tests', () => {
-  test('homepage loads successfully', async ({ page }) => {
+  test('Homepage loads successfully', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/.+/);
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('page has no console errors on load', async ({ page }) => {
+  test('Page has no console errors on load', async ({ page }) => {
     const errors: string[] = [];
     page.on('console', (msg) => {
       if (msg.type() === 'error') errors.push(msg.text());
@@ -17,7 +17,7 @@ test.describe('Site Load Tests', () => {
     expect(errors).toHaveLength(0);
   });
 
-  test('page has no 404 resource errors', async ({ page }) => {
+  test('Page has no 404 resource errors', async ({ page }) => {
     const failedUrls: string[] = [];
     page.on('response', (response) => {
       if (response.status() === 404) failedUrls.push(response.url());
