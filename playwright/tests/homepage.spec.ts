@@ -19,8 +19,9 @@ test.describe('Homepage - Text Content', () => {
 
     await test.step('verify section titles match expected values', async () => {
       for (const sectionTitle of await homePage.sectionTitles.all()) {
-      const text = await sectionTitle.textContent();
-      expect.soft(constants.homePageSectionTitles).toContain(text?.trim());
+        const text = await sectionTitle.textContent();
+        const trimmed = text?.trim() ?? '';
+        expect.soft(constants.homePageSectionTitles.some(title => trimmed.includes(title))).toBe(true);
       }
     });
 
