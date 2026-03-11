@@ -65,19 +65,18 @@ test.describe('Test Results - Test Run Cards', () => {
       await cardLocator.scrollIntoViewIfNeeded();
       const expectedSuiteName = testRun.suiteName as string;
       const expectedEnv = (testRun.environment as string).toUpperCase();
-      const rawDate = testRun.runDate as Date | string;
-      const localDate = rawDate instanceof Date ? rawDate : new Date(`${rawDate}`);
-      const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60 * 1000);
-      const expectedRunDate = utcDate.toLocaleString('en-US', {
-          timeZone: 'UTC',
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-          timeZoneName: 'short',
-        });
+      const dateInUtc = new Date((testRun.runDate as string) + " UTC");
+
+      const expectedRunDate = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZoneName: 'short',
+      }).format(dateInUtc);
 
       await test.step(`verify test run card for ${expectedSuiteName} suite run at ${expectedRunDate} is displayed`, async () => {
         await expect.soft(cardLocator).toBeVisible();
