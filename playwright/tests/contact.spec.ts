@@ -4,7 +4,7 @@ import constants from '../../test-data/constants.json';
 import { randomString } from '../../utils/stringUtils';
 import { runQuery } from '../../utils/dbUtils';
 
-const query = 'SELECT * FROM contact_submissions WHERE email = $1';
+const query = 'SELECT * FROM contact_submissions WHERE email = $1 ORDER BY "submittedAt" DESC';
 
 test.describe('Contact Page - Layout, Happy Path', () => {
   test.beforeEach(async ({ page }) => {
